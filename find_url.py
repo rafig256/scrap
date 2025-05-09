@@ -32,7 +32,7 @@ def find_urls_from_sitemap(sitemap_path):
 sitemap_file_path = 'sitemap.xml'
 
 # مسیر خروجی فایل‌ها
-output_dir = 'result'
+output_dir = 'resource'
 output_excel_path_normal = os.path.join(output_dir, 'sitemap_links.xlsx')
 output_excel_path_filtered = os.path.join(output_dir, 'filtered_links.xlsx')
 
