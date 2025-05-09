@@ -2,11 +2,10 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import os
-import re  # عبارت های باقاعده
+import re
 from openpyxl import load_workbook
 
-
-url = 'https://www.heyvagroup.com/shownews/9971/%D8%AA%D9%85%D8%AF%DB%8C%D8%AF-%D9%88-%D8%AA%D8%B9%D9%88%DB%8C%D8%B6-%DA%A9%D8%A7%D8%B1%D8%AA-%D9%85%D9%87%D8%A7%D8%B1%D8%AA-%D9%81%D9%86%DB%8C-%D8%AD%D8%B1%D9%81%D9%87-%D8%A7%DB%8C.html'
+url = 'https://www.heyvagroup.com/shownews/9964/نحوه-پرداخت-قسطی-شهریه-دانشگاه-آزاد-.html'
 
 r = requests.get(url)
 soup = BeautifulSoup(r.content, 'html.parser')
@@ -36,11 +35,9 @@ df_content = pd.DataFrame({'متن پاراگراف': content_paragraphs})
 
 if os.path.exists(content_output_file):
     book = load_workbook(content_output_file)
-    writer = pd.ExcelWriter(content_output_file, engine='openpyxl')
-    writer.book = book
-    writer.sheets = {ws.title: ws for ws in book.worksheets}
-    df_content.to_excel(writer, sheet_name='Sheet1', startrow=book.active.max_row, header=False, index=False)
-    writer.save()
+    start_row = book.active.max_row
+    with pd.ExcelWriter(content_output_file, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
+        df_content.to_excel(writer, sheet_name='Sheet1', startrow=start_row, header=False, index=False)
     print(f"محتوای جدید به فایل '{content_output_file}' اضافه شد.")
 else:
     df_content.to_excel(content_output_file, index=False)
@@ -57,11 +54,9 @@ if faq_header:
     while current_element:
         if current_element.name == 'h4':
             question_text = current_element.text.strip()
-            # حذف پیشوند "شماره- ✔️" از سوال
             current_question = re.sub(r'^\d+- ✔️\s*', '', question_text)
         elif current_element.name == 'p' and current_question:
             answer_text = current_element.text.strip()
-            # حذف پیشوند "✔️" و عبارت "با توجه به متن مقاله، " از جواب
             answer_without_checkmark = answer_text.replace('✔️', '').strip()
             answer = answer_without_checkmark.replace('با توجه به متن مقاله، ', '').strip()
             faq_items.append({'question': current_question, 'answer': answer})
@@ -74,14 +69,14 @@ if faq_header:
 
     if os.path.exists(faq_output_file):
         book = load_workbook(faq_output_file)
-        writer = pd.ExcelWriter(faq_output_file, engine='openpyxl')
-        writer.book = book
-        writer.sheets = {ws.title: ws for ws in book.worksheets}
-        df_faq.to_excel(writer, sheet_name='Sheet1', startrow=book.active.max_row, header=False, index=False)
-        writer.save()
+        start_row = book.active.max_row
+        with pd.ExcelWriter(faq_output_file, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
+            df_faq.to_excel(writer, sheet_name='Sheet1', startrow=start_row, header=False, index=False)
         print(f"سوالات متداول جدید به فایل '{faq_output_file}' اضافه شد.")
     else:
         df_faq.to_excel(faq_output_file, index=False)
         print(f"سوالات متداول در فایل '{faq_output_file}' ذخیره شد.")
+
+
 else:
     print("بخش 'سوالات متداول' در صفحه یافت نشد.")
