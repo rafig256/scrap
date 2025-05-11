@@ -5,7 +5,7 @@ import os
 import re
 from openpyxl import load_workbook
 
-url = 'https://www.heyvagroup.com/shownews/9964/نحوه-پرداخت-قسطی-شهریه-دانشگاه-آزاد-.html'
+url = 'https://www.heyvagroup.com/shownews/9959/نکات-مهم-در-انتخاب-استاد-مشاور.html'
 
 r = requests.get(url)
 soup = BeautifulSoup(r.content, 'html.parser')
